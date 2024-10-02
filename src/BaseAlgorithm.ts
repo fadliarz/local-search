@@ -7,67 +7,6 @@ export default class BaseAlgorithm {
     return (N * (Math.pow(N, 3) + 1)) / 2;
   }
 
-  public static calculateDeviation(state: State) {
-    const N = state.cube[0].length;
-    const magicNumber = BaseAlgorithm.calculateMagicNumber(N);
-    const pillars = Array.from({ length: N })
-      .fill(0)
-      .map(() => Array.from({ length: N }).fill(0)) as number[][];
-
-    let deviation = 0;
-
-    function updateDeviation(num: number) {
-      deviation += Math.abs(num - magicNumber);
-    }
-
-    for (let frame of state.cube) {
-      for (let row of frame) {
-        updateDeviation(row.reduce((acc, curr) => acc + curr));
-      }
-
-      for (let i = 0; i < N; i++) {
-        let sum = 0;
-        for (let j = 0; j < N; j++) sum += frame[j][i];
-
-        updateDeviation(sum);
-      }
-
-      let firstSum = 0;
-      let secondSum = 0;
-      for (let i = 0; i < N; i++) {
-        firstSum += frame[i][i];
-        secondSum += frame[i][N - 1 - i];
-      }
-      updateDeviation(firstSum);
-      updateDeviation(secondSum);
-
-      frame.forEach((row, i) =>
-        row.forEach((col, j) => {
-          (pillars as number[][])[i][j] += col;
-        }),
-      );
-    }
-
-    for (let row of pillars) {
-      for (let num of row) {
-        updateDeviation(num);
-      }
-    }
-
-    let sum = [0, 0, 0, 0];
-    for (let i = 0; i < N; i++) {
-      sum[0] += state.cube[i][i][i];
-      sum[1] += state.cube[i][i][N - 1 - i];
-      sum[2] += state.cube[i][N - 1 - i][i];
-      sum[3] += state.cube[i][N - 1 - i][N - 1 - i];
-    }
-    for (let num of sum) {
-      updateDeviation(num);
-    }
-
-    return deviation;
-  }
-
   public static initializeState(N: number): State {
     const cube: number[][][] = [];
     const elements = Array.from({ length: Math.pow(N, 3) }, (_, i) => i + 1);
@@ -217,36 +156,6 @@ export default class BaseAlgorithm {
       !ConstraintViolation.isColumnConstraintViolatedWithGivenPoint(state, p2)
     )
       countNotViolated++;
-
-    // if (
-    //   !ConstraintViolation.isPillarConstraintViolatedWithGivenPoint(
-    //     state,
-    //     p1,
-    //   ) ||
-    //   !ConstraintViolation.isPillarConstraintViolatedWithGivenPoint(state, p2)
-    // )
-    //   countNotViolated++;
-    //
-    // if (
-    //   !ConstraintViolation.isDiagonalConstraintViolatedWithGivenPoint(
-    //     state,
-    //     p1,
-    //   ) ||
-    //   !ConstraintViolation.isDiagonalConstraintViolatedWithGivenPoint(state, p2)
-    // )
-    //   countNotViolated++;
-
-    // if (
-    //   !ConstraintViolation.isSpaceDiagonalConstraintViolatedWithGivenPoint(
-    //     state,
-    //     p1,
-    //   ) ||
-    //   !ConstraintViolation.isSpaceDiagonalConstraintViolatedWithGivenPoint(
-    //     state,
-    //     p2,
-    //   )
-    // )
-    //   countNotViolated++;
 
     return countNotViolated == 0;
   }
